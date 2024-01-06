@@ -2,16 +2,12 @@ version: '3.8'
 
 services:
   app:
-    image: node:alpine3.19
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: img-reducer-app
-    working_dir: /app
-    command: npm start
-    volumes:
-      - .:/app
     ports:
       - "3000:3000"
-    environment:
-      NODE_ENV: development
     depends_on:
       - redis
 
@@ -20,4 +16,3 @@ services:
     container_name: img-reducer-redis
     ports:
       - "6379:6379"
-
