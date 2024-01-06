@@ -1,11 +1,16 @@
-const sharp = require('sharp');
+const sharp = require("sharp");
 
 async function reduceImage(imageBuffer, options) {
   try {
-    let processedImage = await sharp(imageBuffer)
-      .resize(options.maxWidth, options.maxHeight, { fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: options.quality })
-      .toBuffer();
+    let processedImage;
+
+    // Check if Instagram format is selected
+    if (options.isInstagramFeedFormat) {
+      processedImage = await addWhitePadding(imageBuffer, options);
+    } else {
+      // Reduce the image without white padding
+      processedImage = await sharp(imageBuffer).resize(options.maxWidth, options.maxHeight, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: options.quality }).toBuffer();
+    }
 
     // Check and reduce the file size if it exceeds the specified max size
     const maxSizeInBytes = options.maxSize;
@@ -21,17 +26,14 @@ async function reduceImage(imageBuffer, options) {
       }
 
       // Process the image again with the updated quality setting
-      processedImage = await sharp(imageBuffer)
-        .resize(options.maxWidth, options.maxHeight, { fit: 'inside', withoutEnlargement: true })
-        .jpeg({ quality: options.quality })
-        .toBuffer();
+      processedImage = await sharp(imageBuffer).resize(options.maxWidth, options.maxHeight, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: options.quality }).toBuffer();
 
       // Update the current size
       currentSizeInBytes = processedImage.length;
     }
 
     if (currentSizeInBytes > maxSizeInBytes) {
-      console.warn(`Warning: Could not meet target size constraint. Current size: ${currentSizeInBytes/1024} KB`);
+      console.warn(`Warning: Could not meet target size constraint. Current size: ${currentSizeInBytes / 1024} KB`);
     }
 
     return processedImage;
@@ -41,5 +43,16 @@ async function reduceImage(imageBuffer, options) {
   }
 }
 
-module.exports = { reduceImage };
+async function addWhitePadding(imageBuffer, options) {
+  return new Promise((resolve, reject) => {
+    sharp(imageBuffer)
+      .resize({ width: options.maxWidth, height: options.maxHeight, fit: "contain", background: "white" })
+      .jpeg({ quality: options.quality })
+      .toBuffer((err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+  });
+}
 
+module.exports = { reduceImage };
