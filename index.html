@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Image Size Reducer</title>
+  <!-- Include Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="font-sans text-center bg-gray-100 py-10">
+
+  <h1 class="text-4xl mb-6">Bulk Image Size Reducer</h1>
+
+  <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" class="w-96 mx-auto bg-white p-6 rounded-lg shadow-md">
+
+    <label for="images" class="block text-left text-sm font-medium text-gray-700 mb-2">Choose multiple images (JPEG, JPG, PNG):</label>
+    <input type="file" name="images" accept="image/jpeg, image/jpg, image/png" multiple required class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-4">
+
+    <label for="quality" class="block text-left text-sm font-medium text-gray-700 mb-2">Quality (%):</label>
+    <input type="number" name="quality" min="1" max="100" value="80" required class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-4">
+
+    <div class="flex mb-4">
+      <div class="w-1/2 pr-2">
+        <label for="maxSizeValue" class="block text-left text-sm font-medium text-gray-700 mb-2">Max Size:</label>
+        <input type="number" name="maxSizeValue" min="1" value="1" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+      </div>
+      <div class="w-1/2 pl-2">
+        <label for="maxSizeUnit" class="block text-left text-sm font-medium text-gray-700 mb-2">Unit:</label>
+        <select name="maxSizeUnit" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+          <option value="KB">KB</option>
+          <option value="MB" selected>MB (Default)</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="maxWidth" class="block text-left text-sm font-medium text-gray-700 mb-2">Max Width (px):</label>
+    <input type="number" name="maxWidth" min="1" value="1080" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-4">
+
+    <label for="maxHeight" class="block text-left text-sm font-medium text-gray-700 mb-2">Max Height (px):</label>
+    <input type="number" name="maxHeight" min="1" value="1080" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-6">
+
+    <button type="submit" class="bg-blue-500 text-white font-semibold px-4 py-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 focus:ring-opacity-50">Upload and Reduce</button>
+
+  </form>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('change', function (event) {
+      const imagesInput = document.querySelector('input[name="images"]');
+      const qualityInput = document.querySelector('input[name="quality"]');
+      const maxSizeValueInput = document.querySelector('input[name="maxSizeValue"]');
+      const maxSizeUnitInput = document.querySelector('select[name="maxSizeUnit"]');
+      const maxWidthInput = document.querySelector('input[name="maxWidth"]');
+      const maxHeightInput = document.querySelector('input[name="maxHeight"]');
+
+      if (imagesInput.files.length > 0) {
+        const firstImageFile = imagesInput.files[0];
+        const img = new Image();
+
+        img.onload = function () {
+          maxWidthInput.placeholder = `Default: ${img.width} px`;
+          maxHeightInput.placeholder = `Default: ${img.height} px`;
+        };
+
+        const objectURL = URL.createObjectURL(firstImageFile);
+        img.src = objectURL;
+
+        maxSizeValueInput.placeholder = `Default: ${Math.ceil(firstImageFile.size / 1024)}`;
+      } else {
+        maxWidthInput.placeholder = 'Max Width (px)';
+        maxHeightInput.placeholder = 'Max Height (px)';
+        maxSizeValueInput.placeholder = 'Max Size';
+      }
+    });
+  </script>
+
+</body>
+</html>
+
