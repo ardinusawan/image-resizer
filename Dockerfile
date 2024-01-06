@@ -8,8 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install -g bun
-RUN bun install
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .
@@ -18,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the application
-CMD ["bun", "start"]
+CMD ["npm", "start"]
