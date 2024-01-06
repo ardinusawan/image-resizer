@@ -17,19 +17,6 @@ app.get("/", (req, res) => {
 });
 
 app.post("/upload", upload.array("images"), async (req, res) => {
-  const now = new Date();
-  const timestamp = now
-    .toLocaleString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    })
-    .replace(/[-: ]/g, "_");
-
   try {
     const quality = parseInt(req.body.quality);
     const maxSizeValue = parseInt(req.body.maxSizeValue);
@@ -53,38 +40,49 @@ app.post("/upload", upload.array("images"), async (req, res) => {
 
     const reducedImages = await Promise.all(req.files.map(addWhitePaddingIfNeeded));
 
-    // Zip the reduced images into a single downloadable file (optional)
-    const zipBuffer = await createZip(reducedImages);
+    // Prepare an array to store data URIs
+    const dataURIs = [];
 
-    // Set response headers for automatic download
-    res.setHeader("Content-Disposition", `attachment; filename=bulk_reduced_images_${timestamp}.zip`);
-    res.setHeader("Content-Type", "application/zip");
-    res.setHeader("Content-Length", zipBuffer.length);
+    // Convert each image buffer to a data URI and push to the array
+    reducedImages.forEach((buffer, index) => {
+      const mimeType = "image/jpeg";
+      const base64Image = buffer.toString("base64");
+      const dataURI = `data:${mimeType};base64,${base64Image}`;
+      dataURIs.push(dataURI);
+    });
 
-    // Send the zip file data directly
-    res.send(zipBuffer);
+    // Send HTML response with embedded data URIs
+    res.send(`
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Bulk Image Size Reducer</title>
+      <!-- Include Tailwind CSS -->
+      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    </head>
+    <body class="font-sans text-center bg-gray-100 py-10">
+      <h1 class="text-4xl mb-6">Bulk Image Size Reducer</h1>
+
+      <div>
+        ${dataURIs.map((dataURI, index) => `<a href="${dataURI}" download="reduced_image_${index + 1}.jpg">Download Image ${index + 1}</a></br></br>`).join("")}
+      </div>
+
+      <button onclick="resetForm()" class="bg-red-500 text-white font-semibold px-4 py-2 rounded-full hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-200 focus:ring-opacity-50">Reset Form</button>
+
+      <script>
+        function resetForm() {
+          location.href = "/";
+        }
+      </script>
+    </body>
+  </html>
+`);
   } catch (error) {
     res.status(500).send(`<h2>Error reducing images: ${error.message}</h2>`);
   }
 });
-
-async function createZip(imageBuffers) {
-  const archiver = require("archiver");
-  const archive = archiver("zip");
-
-  imageBuffers.forEach((buffer, index) => {
-    archive.append(buffer, { name: `reduced_image_${index + 1}.jpg` });
-  });
-
-  return new Promise((resolve, reject) => {
-    const buffers = [];
-    archive.on("data", (data) => buffers.push(data));
-    archive.on("end", () => resolve(Buffer.concat(buffers)));
-    archive.on("error", reject);
-
-    archive.finalize();
-  });
-}
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
