@@ -65,8 +65,12 @@ app.post("/upload", upload.array("images"), async (req, res) => {
     <body class="font-sans text-center bg-gray-100 py-10">
       <h1 class="text-4xl mb-6">Bulk Image Size Reducer</h1>
 
-      <div>
-        ${dataURIs.map((dataURI, index) => `<a href="${dataURI}" download="reduced_image_${index + 1}.jpg">Download Image ${index + 1}</a></br></br>`).join("")}
+      <div class="mb-8">
+        ${dataURIs.map((dataURI, index) => `
+          <div class="mb-4">
+            <span class="text-lg font-semibold">Image ${index + 1}:</span>
+            <a href="${dataURI}" download="reduced_image_${index + 1}.jpg" class="ml-2 inline-block px-3 py-1 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 focus:ring-opacity-50">Download</a>
+          </div>`).join("")}
       </div>
 
       <button onclick="resetForm()" class="bg-red-500 text-white font-semibold px-4 py-2 rounded-full hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-200 focus:ring-opacity-50">Reset Form</button>
