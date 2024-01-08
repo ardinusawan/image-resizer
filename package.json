@@ -1,6 +1,15 @@
 {
-    "scripts": {
-        "start": "node app.js"
-    },
-    "dependencies": { "archiver": "^6.0.1", "express": "^4.18.2", "heic-convert": "^2.1.0", "image-size": "^1.1.1", "multer": "^1.4.5-lts.1", "sharp": "^0.33.1" }
+  "scripts": {
+    "prestart": "npm rebuild sharp",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@imgly/background-removal-node": "^1.3.0",
+    "archiver": "^6.0.1",
+    "express": "^4.18.2",
+    "heic-convert": "^2.1.0",
+    "image-size": "^1.1.1",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.1"
+  }
 }

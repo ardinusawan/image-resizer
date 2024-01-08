@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const { removeBackground } = require("@imgly/background-removal-node");
 
 const { reduceImage } = require("./imageReducer");
 
@@ -25,6 +26,7 @@ app.post("/upload", upload.array("images"), async (req, res) => {
     const quality = parseInt(req.body.quality);
     const maxSizeValue = parseInt(req.body.maxSizeValue);
     const maxSizeUnit = req.body.maxSizeUnit; // KB or MB
+    const isRemoveBackground = req.body.isRemoveBackground === "on";
 
     let maxSize;
     if (maxSizeUnit === "MB") {
@@ -42,7 +44,21 @@ app.post("/upload", upload.array("images"), async (req, res) => {
       return reduceImage(imageBuffer, reductionOptions);
     };
 
-    const reducedImages = await Promise.all(req.files.map(addWhitePaddingIfNeeded));
+    const removeBackgroundIfNeeded = async (file) => {
+      if (!isRemoveBackground) return;
+      try {
+        const resultBlob = await removeBackground(file.buffer);
+        const resultBuffer = Buffer.from(await resultBlob.arrayBuffer());
+        return resultBuffer;
+      } catch (error) {
+        console.error("Error removing background:", error);
+        return file.buffer;
+      }
+    };
+
+    let reducedImages = req.files;
+    reducedImages = await Promise.all(reducedImages.map(removeBackgroundIfNeeded));
+    reducedImages = await Promise.all(reducedImages.map(addWhitePaddingIfNeeded));
 
     // Prepare an array to store data URIs
     const dataURIs = [];
