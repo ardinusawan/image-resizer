@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const sharp = require("sharp");
+
 const { reduceImage } = require("./imageReducer");
 
 const app = express();
@@ -12,11 +12,11 @@ const upload = multer({ storage: storage });
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/ads.txt", (req, res) => {
+app.get("/ads.txt", (_, res) => {
   res.sendFile(path.join(__dirname, "ads.txt"));
 });
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
@@ -48,7 +48,7 @@ app.post("/upload", upload.array("images"), async (req, res) => {
     const dataURIs = [];
 
     // Convert each image buffer to a data URI and push to the array
-    reducedImages.forEach((buffer, index) => {
+    reducedImages.forEach((buffer, _) => {
       const mimeType = "image/jpeg";
       const base64Image = buffer.toString("base64");
       const dataURI = `data:${mimeType};base64,${base64Image}`;
@@ -70,11 +70,15 @@ app.post("/upload", upload.array("images"), async (req, res) => {
       <h1 class="text-4xl mb-6">Bulk Image Size Reducer</h1>
 
       <div class="mb-8">
-        ${dataURIs.map((dataURI, index) => `
+        ${dataURIs
+          .map(
+            (dataURI, index) => `
           <div class="mb-4">
             <span class="text-lg font-semibold">Image ${index + 1}:</span>
             <a href="${dataURI}" download="reduced_image_${index + 1}.jpg" class="ml-2 inline-block px-3 py-1 bg-blue-500 text-white font-semibold rounded-full hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 focus:ring-opacity-50">Download</a>
-          </div>`).join("")}
+          </div>`
+          )
+          .join("")}
       </div>
 
       <button onclick="resetForm()" class="bg-red-500 text-white font-semibold px-4 py-2 rounded-full hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-200 focus:ring-opacity-50">Reset Form</button>
