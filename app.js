@@ -12,6 +12,10 @@ const upload = multer({ storage: storage });
 
 app.use(express.static(path.join(__dirname, "public")));
 
+app.get("/ads.txt", (req, res) => {
+  res.sendFile(path.join(__dirname, "ads.txt"));
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
