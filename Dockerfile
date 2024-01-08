@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the application using PM2
-CMD ["pm2-runtime", "npm", "--", "start"]
+CMD ["pm2-runtime", "start", "pm2.config.js"]
