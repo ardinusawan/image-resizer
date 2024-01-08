@@ -11,6 +11,8 @@ services:
     depends_on:
       - redis
     restart: always
+    environment:
+      - NODE_ENV=production
 
   redis:
     image: redis:latest

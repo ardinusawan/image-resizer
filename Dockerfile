@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install -g pm2 && npm install
 
 # Copy the rest of the application code
 COPY . .
@@ -16,5 +16,5 @@ COPY . .
 # Expose port 3000
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Start the application using PM2
+CMD ["pm2-runtime", "npm", "--", "start"]
