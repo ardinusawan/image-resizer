@@ -45,7 +45,6 @@ app.post("/upload", upload.array("images"), async (req, res) => {
     };
 
     const removeBackgroundIfNeeded = async (file) => {
-      if (!isRemoveBackground) return;
       try {
         const resultBlob = await removeBackground(file.buffer);
         const resultBuffer = Buffer.from(await resultBlob.arrayBuffer());
@@ -57,7 +56,10 @@ app.post("/upload", upload.array("images"), async (req, res) => {
     };
 
     let reducedImages = req.files;
-    reducedImages = await Promise.all(reducedImages.map(removeBackgroundIfNeeded));
+    if (isRemoveBackground) {
+      reducedImages = await Promise.all(reducedImages.map(removeBackgroundIfNeeded));
+    }
+
     reducedImages = await Promise.all(reducedImages.map(addWhitePaddingIfNeeded));
 
     // Prepare an array to store data URIs
