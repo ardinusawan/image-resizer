@@ -1,5 +1,10 @@
 # Image resizer
 
+## Capability
+- Resize, crop image
+- Remove background
+- Format image to fit instagram grid format
+
 ## Techstack
 - HTML + Tailwind + vanilla js
 - Nodejs
