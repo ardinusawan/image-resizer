@@ -9,6 +9,8 @@
 - HTML + Tailwind + vanilla js
 - Nodejs
 - Redis
+- PM2
+  - For spawn nodejs for every core of CPU of the host machine
 
 ## How to run
 - Install [docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/)
